@@ -1,62 +1,62 @@
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 // const sendInBlue  = require('nodemailer-sendinblue-transport');
 module.exports = class Email {
-    constructor(user,url) {
-      this.to = user.email;
-      this.firstName = user.firstName;
-      this.url = url;
-      this.from = `evans <${process.env.EMAIL_FROM}>` ;
-    }
+  constructor(user, url) {
+    this.to = user.email;
+    this.firstName = user.firstName;
+    this.url = url;
+    this.from = `evans <${process.env.EMAIL_FROM}>`;
+  }
 
-    newTransport() {
-      if(process.env.NODE_ENV === 'production'){
-
-        return nodemailer.createTransport({
-          service:'"SendinBlue"',
-          port:587,
-          host:'smtp-relay.sendinblue.com',
-          auth:{
-            user:'martinlutherakuhwa@gmail.com',
-            pass:'6fAnKd5xLTZ8acVm'
-          }
-        })
-      }
-
+  newTransport() {
+    if (process.env.NODE_ENV === "production") {
       return nodemailer.createTransport({
-        host: process.env.EMAIL_HOST,
-        port: process.env.EMAIL_PORT,
+        service: '"SendinBlue"',
+        port: process.env.EMAIL_PRODUCTION_PORT,
+        host: process.env.EMAIL_PRODUCTION_HOST,
         auth: {
-          user:process.env.EMAIL_USERNAME,
-          pass:process.env.EMAIL_PASSWORD
-        }
+          user: process.env.EMAIL_PRODUCTION_USERNAME,
+          pass: process.env.EMAIL_PRODUCTION_PASSWORD,
+        },
       });
-
     }
 
-    async send(subject,text) {
-      // send the actual email
+    return nodemailer.createTransport({
+      host: process.env.EMAIL_HOST,
+      port: process.env.EMAIL_PORT,
+      auth: {
+        user: process.env.EMAIL_USERNAME,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+  }
 
-      const mailOptions = {
-        from: this.from,
-        to: this.to,
-        subject,
-        text: text
-      };
+  async send(subject, text) {
+    // send the actual email
 
-      // create transport and send email
-        await this.newTransport().sendMail(mailOptions);
-    }
+    const mailOptions = {
+      from: this.from,
+      to: this.to,
+      subject,
+      text: text,
+    };
 
+    // create transport and send email
+    await this.newTransport().sendMail(mailOptions);
+  }
 
-    async sendWelcome() {
-      await this.send(`welcome`,'welcome to the hifl family, we are glad to have you')
-    }
+  async sendWelcome() {
+    await this.send(
+      `welcome`,
+      "welcome to the hifl family, we are glad to have you"
+    );
+  }
 
-    async sendPasswordReset( message) {
-      await this.send(`password Reset`, message)
-    }
+  async sendPasswordReset(message) {
+    await this.send(`password Reset`, message);
+  }
 
-    async sendPaymentConfirm () {
-      await this.send('payment confirmation')
-    }
-}
+  async sendPaymentConfirm() {
+    await this.send("payment confirmation");
+  }
+};
